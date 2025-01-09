@@ -1,0 +1,9 @@
+when:
+  - branch: ollama
+
+steps:
+  - name: build
+    image: debian:stable-slim
+    commands:
+      - echo building
+      - sleep 5

@@ -1,0 +1,10 @@
+steps:
+  - name: notify
+    image: debian:stable-slim
+    commands:
+      - echo notifying
+
+depends_on:
+  - deploy
+
+runs_on: [ success, failure ]

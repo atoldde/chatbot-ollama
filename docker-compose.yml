@@ -1,10 +1,46 @@
-version: '3.6'
-
 services:
-  chatgpt:
-    build: .
+  # https://github.com/ollama/ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+#    ports:
+#      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - default
+# https://ollama.com/library
+# ollama pull llama3
+# ollama pull codellama
+# ollama pull mistral
+# ollama pull gemma
+# ollama pull codegemma
+
+  # https://github.com/ivanfioravanti/chatbot-ollama
+  chatbot:
+#    build: .
+    image: ghcr.io/ivanfioravanti/chatbot-ollama:main
+    container_name: chatbot
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
-      - 'DEFAULT_MODEL='
-      - 'OLLAMA_HOST='
+      - 'DEFAULT_MODEL=llama3'
+      - 'OLLAMA_HOST=http://ollama:11434'
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+#      - "traefik.http.routers.chatbot.rule=Host(`chatbot.traefik.me`)"
+      - "traefik.http.routers.chatbot.entrypoints=websecure"
+      - "traefik.http.routers.chatbot.tls=true"
+      - "traefik.http.services.chatbot.loadbalancer.server.port=3000"
+
+volumes:
+  ollama_data:
+    name: ollama_data
+    external: true
+
+networks:
+  proxy:
+    external: true # Network externe de Traefik
